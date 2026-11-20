@@ -5,6 +5,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -33,6 +34,7 @@ import 'package:yet_another_luci_app/services/operation_queue.dart';
 import 'package:yet_another_luci_app/utils/self_device_guard.dart';
 import 'package:yet_another_luci_app/modules/domain_blocking/models/domain_block_rule.dart';
 import 'package:yet_another_luci_app/services/interfaces/api_service_interface.dart';
+
 import '../utils/http_client_manager.dart';
 import '../utils/logger.dart';
 
@@ -1664,7 +1666,6 @@ class RealApiService implements IApiService {
       return false;
     }
   }
-
 
   Future<String?> execDirectCgi(
     String ipAddress,
@@ -9860,13 +9861,11 @@ rm -f "$leasePath" /tmp/dhcp.leases /var/dhcp.leases /tmp/dnsmasq.leases /var/li
     } else if (dnsOk && !publicDnsOk) {
       // ISP or firewall blocks ICMP echo, but DNS resolution succeeds
       status = ReachabilityStatus.online;
-      statusMsg =
-          'Connected to Internet (DNS operational, ICMP ping blocked by network)';
+      statusMsg = 'Connected to Internet (DNS operational, ICMP ping blocked by network)';
     } else if (publicDnsOk && !dnsOk) {
       // Direct IP connectivity works, but DNS resolution is broken
       status = ReachabilityStatus.partial;
-      statusMsg =
-          'ICMP ping reachable, but DNS resolution failed (Check router DNS settings)';
+      statusMsg = 'ICMP ping reachable, but DNS resolution failed (Check router DNS settings)';
     } else if (gwOk) {
       // Gateway is reachable on LAN/WAN, but cannot reach public internet
       status = ReachabilityStatus.partial;
@@ -10348,8 +10347,7 @@ rm -f "$leasePath" /tmp/dhcp.leases /var/dhcp.leases /tmp/dnsmasq.leases /var/li
 
     return FlushDnsResult.success(
       flushedResolvers: const ['None'],
-      message:
-          'No local caching DNS resolver is active on this router. Upstream DNS servers are queried directly.',
+      message: 'No local caching DNS resolver is active on this router. Upstream DNS servers are queried directly.',
       rawOutput: logBuf.toString().trim(),
     );
   }

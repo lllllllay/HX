@@ -322,9 +322,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${router.ipAddress} • $boardName',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -705,8 +704,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              AppLocalizations.of(context)?.customizeDashboardSubtitle ??
-                  'Rearrange layout, toggle card visibility, quick action shortcuts & interface throughput monitoring',
+              AppLocalizations.of(context)?.customizeDashboardSubtitle ?? 'Rearrange layout, toggle card visibility, quick action shortcuts & interface throughput monitoring',
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.onSurfaceVariant,
@@ -763,8 +761,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              l10n?.settingsExportConfigSubtitle ??
-                  'Export DDNS, DHCP leases, firewall rules, packages, cron jobs & more as JSON',
+              l10n?.settingsExportConfigSubtitle ?? 'Export DDNS, DHCP leases, firewall rules, packages, cron jobs & more as JSON',
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.onSurfaceVariant,
@@ -830,8 +827,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          l10n?.redetectCapabilitiesSubtitle ??
-                              'Probe active router ubus objects & package manager capabilities',
+                          l10n?.redetectCapabilitiesSubtitle ?? 'Probe active router ubus objects & package manager capabilities',
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -851,9 +847,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               context.showToastSuccess(
                                 l10n?.capDetectedSuccess ??
                                     'Capabilities Detected',
-                                subtitle:
-                                    l10n?.capDetectedSuccessSubtitle ??
-                                    'Router capabilities re-detected & cached successfully!',
+                                subtitle: l10n?.capDetectedSuccessSubtitle ?? 'Router capabilities re-detected & cached successfully!',
                               );
                             }
                           },
@@ -1013,8 +1007,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: colorScheme.tertiaryContainer,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.power_settings_new_rounded,
-                color: colorScheme.onTertiaryContainer, size: 22),
+            child: Icon(
+              Icons.power_settings_new_rounded,
+              color: colorScheme.onTertiaryContainer,
+              size: 22,
+            ),
           ),
           title: Text(
             l10n?.tileWakeOnLan ?? 'Wake on LAN',
@@ -1095,28 +1092,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       }
                       setDlg(() => busy = true);
                       final ip = appState.selectedRouter?.ipAddress;
-                      final useHttps = appState.selectedRouter?.useHttps ?? false;
+                      final useHttps =
+                          appState.selectedRouter?.useHttps ?? false;
                       final ok = ip == null
                           ? false
                           : await appState.apiService?.wakeOnLan(
-                                ip,
-                                appState.sysauth ?? '',
-                                useHttps,
-                                mac,
-                                interface: ifaceCtrl.text.trim().isEmpty
-                                    ? 'br-lan'
-                                    : ifaceCtrl.text.trim(),
-                                broadcast: broadcast,
-                                context: ctx,
-                              ) ?? false;
+                                  ip,
+                                  appState.sysauth ?? '',
+                                  useHttps,
+                                  mac,
+                                  interface: ifaceCtrl.text.trim().isEmpty
+                                      ? 'br-lan'
+                                      : ifaceCtrl.text.trim(),
+                                  broadcast: broadcast,
+                                  context: ctx,
+                                ) ??
+                                false;
                       if (ctx.mounted) Navigator.of(ctx).pop();
                       if (context.mounted) {
                         if (ok) {
-                          context.showToastSuccess('Magic packet sent',
-                              subtitle: mac);
+                          context.showToastSuccess(
+                            'Magic packet sent',
+                            subtitle: mac,
+                          );
                         } else {
-                          context.showToastError('Failed to send magic packet',
-                              subtitle: 'Check RPC permissions / etherwake');
+                          context.showToastError(
+                            'Failed to send magic packet',
+                            subtitle: 'Check RPC permissions / etherwake',
+                          );
                         }
                       }
                     },
@@ -1124,7 +1127,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ? const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Wake'),
             ),
           ],
@@ -1760,8 +1764,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               Tooltip(
-                message:
-                    'Bypasses live router connection and populates mock metrics for testing and review.',
+                message: 'Bypasses live router connection and populates mock metrics for testing and review.',
                 child: Icon(
                   Icons.help_outline_rounded,
                   size: 18,
@@ -1772,8 +1775,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            l10n?.settingsReviewerModeDesc ??
-                'Mock data is being used for demonstration. No live router is currently connected.',
+            l10n?.settingsReviewerModeDesc ?? 'Mock data is being used for demonstration. No live router is currently connected.',
             style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),

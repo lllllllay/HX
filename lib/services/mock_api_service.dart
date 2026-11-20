@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,8 +38,6 @@ enum MockCapabilityProfile {
   legacyConstrained, // Profile B: fw3, IPv4 only, swconfig, no AGH, UCI write
   readOnlyLuci, // Profile C: fw4, IPv4 + IPv6, UCI write access disabled
   constrainedFailure, // Profile D: fw4, missing optional RPC, simulated network timeout
-
-
 }
 
 class MockApiService implements IApiService {
@@ -507,8 +506,7 @@ class MockApiService implements IApiService {
               0,
               {
                 'code': 0,
-                'stdout':
-                    'luci-base - git-23.330\nwireguard-tools - 1.0.20210914-1\n',
+                'stdout': 'luci-base - git-23.330\nwireguard-tools - 1.0.20210914-1\n',
                 'stderr': '',
               },
             ];
@@ -2641,8 +2639,7 @@ class MockApiService implements IApiService {
       return [
         0,
         {
-          'data':
-              'DISTRIB_ID=\'OpenWrt\'\nDISTRIB_RELEASE=\'23.05.3\'\nDISTRIB_REVISION=\'r23809-234f0e6\'\nDISTRIB_TARGET=\'mediatek/mt7981\'\nDISTRIB_ARCH=\'aarch64_cortex-a53\'\nDISTRIB_DESCRIPTION=\'OpenWrt 23.05.3 r23809-234f0e6\'\n',
+          'data': 'DISTRIB_ID=\'OpenWrt\'\nDISTRIB_RELEASE=\'23.05.3\'\nDISTRIB_REVISION=\'r23809-234f0e6\'\nDISTRIB_TARGET=\'mediatek/mt7981\'\nDISTRIB_ARCH=\'aarch64_cortex-a53\'\nDISTRIB_DESCRIPTION=\'OpenWrt 23.05.3 r23809-234f0e6\'\n',
         },
       ];
     }
@@ -2650,8 +2647,7 @@ class MockApiService implements IApiService {
       return [
         0,
         {
-          'data':
-              'NAME="OpenWrt"\nVERSION="23.05.3"\nID="openwrt"\nPRETTY_NAME="OpenWrt 23.05.3"\n',
+          'data': 'NAME="OpenWrt"\nVERSION="23.05.3"\nID="openwrt"\nPRETTY_NAME="OpenWrt 23.05.3"\n',
         },
       ];
     }
@@ -2659,8 +2655,7 @@ class MockApiService implements IApiService {
       return [
         0,
         {
-          'data':
-              'dev:    size   erasesize  name\nmtd0: 00080000 00020000 "u-boot"\nmtd1: 00080000 00020000 "u-boot-env"\nmtd2: 00040000 00020000 "factory"\nmtd3: 02000000 00020000 "firmware"\nmtd4: 00180000 00020000 "kernel"\nmtd5: 01e80000 00020000 "rootfs"\n',
+          'data': 'dev:    size   erasesize  name\nmtd0: 00080000 00020000 "u-boot"\nmtd1: 00080000 00020000 "u-boot-env"\nmtd2: 00040000 00020000 "factory"\nmtd3: 02000000 00020000 "firmware"\nmtd4: 00180000 00020000 "kernel"\nmtd5: 01e80000 00020000 "rootfs"\n',
         },
       ];
     }
@@ -2718,8 +2713,7 @@ class MockApiService implements IApiService {
         0,
         {
           'code': 0,
-          'stdout':
-              'thermal|cpu-thermal|thermal_zone0|51500\nhwmon|ath10k_hwmon|hwmon0/temp1_input|54000\nhwmon|ath10k_hwmon|hwmon1/temp1_input|48000\n',
+          'stdout': 'thermal|cpu-thermal|thermal_zone0|51500\nhwmon|ath10k_hwmon|hwmon0/temp1_input|54000\nhwmon|ath10k_hwmon|hwmon1/temp1_input|48000\n',
           'stderr': '',
         },
       ];
@@ -2730,8 +2724,7 @@ class MockApiService implements IApiService {
         0,
         {
           'code': 0,
-          'stdout':
-              'Filesystem           1K-blocks      Used Available Use% Mounted on\ntmpfs                   124856      1240    123616   1% /tmp\n',
+          'stdout': 'Filesystem           1K-blocks      Used Available Use% Mounted on\ntmpfs                   124856      1240    123616   1% /tmp\n',
           'stderr': '',
         },
       ];
@@ -2742,8 +2735,7 @@ class MockApiService implements IApiService {
         0,
         {
           'code': 0,
-          'stdout':
-              '/etc/config/dhcp\n/etc/config/dropbear\n/etc/config/firewall\n/etc/config/network\n/etc/config/system\n/etc/config/wireless\n/etc/dropbear/dropbear_rsa_host_key\n/etc/shadow\n',
+          'stdout': '/etc/config/dhcp\n/etc/config/dropbear\n/etc/config/firewall\n/etc/config/network\n/etc/config/system\n/etc/config/wireless\n/etc/dropbear/dropbear_rsa_host_key\n/etc/shadow\n',
           'stderr': '',
         },
       ];
@@ -2753,8 +2745,7 @@ class MockApiService implements IApiService {
         0,
         {
           'code': 0,
-          'stdout':
-              'dev:    size   erasesize  name\nmtd0: 00080000 00020000 "u-boot"\nmtd1: 00080000 00020000 "u-boot-env"\nmtd2: 00040000 00020000 "factory"\nmtd3: 02000000 00020000 "firmware"\nmtd4: 00180000 00020000 "kernel"\nmtd5: 01e80000 00020000 "rootfs"\n',
+          'stdout': 'dev:    size   erasesize  name\nmtd0: 00080000 00020000 "u-boot"\nmtd1: 00080000 00020000 "u-boot-env"\nmtd2: 00040000 00020000 "factory"\nmtd3: 02000000 00020000 "firmware"\nmtd4: 00180000 00020000 "kernel"\nmtd5: 01e80000 00020000 "rootfs"\n',
           'stderr': '',
         },
       ];
@@ -2780,8 +2771,7 @@ class MockApiService implements IApiService {
         0,
         {
           'code': 0,
-          'stdout':
-              'DISTRIB_ID=\'OpenWrt\'\nDISTRIB_RELEASE=\'23.05.3\'\nDISTRIB_REVISION=\'r23809-234f0e6\'\nDISTRIB_TARGET=\'mediatek/mt7981\'\nDISTRIB_ARCH=\'aarch64_cortex-a53\'\nDISTRIB_DESCRIPTION=\'OpenWrt 23.05.3 r23809-234f0e6\'\n',
+          'stdout': 'DISTRIB_ID=\'OpenWrt\'\nDISTRIB_RELEASE=\'23.05.3\'\nDISTRIB_REVISION=\'r23809-234f0e6\'\nDISTRIB_TARGET=\'mediatek/mt7981\'\nDISTRIB_ARCH=\'aarch64_cortex-a53\'\nDISTRIB_DESCRIPTION=\'OpenWrt 23.05.3 r23809-234f0e6\'\n',
           'stderr': '',
         },
       ];
@@ -3234,8 +3224,7 @@ Description: Command line tool for transferring data
     return FlushDnsResult.success(
       flushedResolvers: const ['dnsmasq'],
       message: 'Flushed dnsmasq DNS cache & reloaded 12 local hosts.',
-      rawOutput:
-          'dnsmasq[1]: read /etc/hosts - 12 names\ndnsmasq[1]: read /tmp/hosts/dhcp - 4 names\n',
+      rawOutput: 'dnsmasq[1]: read /etc/hosts - 12 names\ndnsmasq[1]: read /tmp/hosts/dhcp - 4 names\n',
     );
   }
 
@@ -3482,6 +3471,7 @@ Description: Command line tool for transferring data
     );
     return LogFetchSuccess(mockEntries);
   }
+
   @override
   Future<bool> wakeOnLan(
     String ipAddress,
@@ -3494,5 +3484,4 @@ Description: Command line tool for transferring data
   }) async {
     return true;
   }
-
 }
