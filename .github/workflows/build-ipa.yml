@@ -69,6 +69,10 @@ jobs:
 
       - name: Build iOS App (Unsigned for Sideloading)
         run: |
+          # Disable code signing for all configurations so no Development
+          # Team / Provisioning Profile is required for a sideloadable build.
+          python3 -c "import re; p='ios/Runner.xcodeproj/project.pbxproj'; s=open(p).read(); s=re.sub(r'CODE_SIGNING_ALLOWED = [A-Za-z]+;', 'CODE_SIGNING_ALLOWED = NO;', s); s=re.sub(r'(buildSettings = \{)(?!\s*CODE_SIGNING)', r'\1\n\t\t\t\tCODE_SIGNING_ALLOWED = NO;\n\t\t\t\tCODE_SIGNING_REQUIRED = NO;\n\t\t\t\tCODE_SIGN_STYLE = Manual;', s); open(p,'w').write(s); print('signing configs:', s.count('CODE_SIGNING_ALLOWED = NO;'))"
+
           EXTRA_ARGS=""
           if [ -n "${{ inputs.build_name }}" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --build-name=${{ inputs.build_name }}"
