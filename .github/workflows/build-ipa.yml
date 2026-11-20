@@ -71,7 +71,7 @@ jobs:
         run: |
           # Disable code signing for all configurations so no Development
           # Team / Provisioning Profile is required for a sideloadable build.
-          python3 -c "import re; p='ios/Runner.xcodeproj/project.pbxproj'; s=open(p).read(); s=re.sub(r'CODE_SIGNING_ALLOWED = [A-Za-z]+;', 'CODE_SIGNING_ALLOWED = NO;', s); s=re.sub(r'(buildSettings = \{)(?!\s*CODE_SIGNING)', r'\1\n\t\t\t\tCODE_SIGNING_ALLOWED = NO;\n\t\t\t\tCODE_SIGNING_REQUIRED = NO;\n\t\t\t\tCODE_SIGN_STYLE = Manual;', s); open(p,'w').write(s); print('signing configs:', s.count('CODE_SIGNING_ALLOWED = NO;'))"
+          python3 -c "import re; p='ios/Runner.xcodeproj/project.pbxproj'; s=open(p).read(); s=re.sub(r'CODE_SIGNING_ALLOWED = [A-Za-z]+;', 'CODE_SIGNING_ALLOWED = NO;', s); s=re.sub(r'(buildSettings = \{)(?!\s*CODE_SIGNING)', r'\1\n\t\t\t\tCODE_SIGNING_ALLOWED = NO;\n\t\t\t\tCODE_SIGNING_REQUIRED = NO;\n\t\t\t\tCODE_SIGN_STYLE = Manual;', s); s=re.sub(r'DEVELOPMENT_TEAM = [^;]*;', 'DEVELOPMENT_TEAM = AAAAAAAAAA;', s); open(p,'w').write(s); print('signing configs:', s.count('CODE_SIGNING_ALLOWED = NO;'), 'teams:', s.count('DEVELOPMENT_TEAM = AAAAAAAAAA;'))"
 
           EXTRA_ARGS=""
           if [ -n "${{ inputs.build_name }}" ]; then
@@ -81,15 +81,17 @@ jobs:
             EXTRA_ARGS="$EXTRA_ARGS --build-number=${{ inputs.build_number }}"
           fi
 
-          # Flutter 3.47 runs a post-build check that demands a Development
-          # Team even with --no-codesign, AFTER the Xcode .app is produced.
-          # Xcode compilation itself succeeds; ignore Flutter's final nonzero
-          # exit and rely on the .app artifact check below.
+          # Flutter 3.47's device build demands a Development Team even with
+          # --no-codesign. Supply a placeholder via the variable Flutter reads,
+          # so its check passes; --no-codesign keeps Xcode from really signing.
+          # The resulting unsigned .app is re-signed later by the sideload tool.
+          export FLUTTER_XCODE_DEVELOPMENT_TEAM=AAAAAAAAAA
+
           flutter build ios --release --no-codesign \
             --dart-define=FLAVOR=community \
             --dart-define=OFFICIAL_BUILD=true \
             --dart-define=IPA_BUILD=true \
-            $EXTRA_ARGS || true
+            $EXTRA_ARGS
 
           if [ ! -d "build/ios/iphoneos/Runner.app" ]; then
             echo "ERROR: Runner.app was not produced by Xcode build"
