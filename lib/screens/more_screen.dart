@@ -769,6 +769,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
     bool broadcast = true;
     bool busy = false;
     List<String> history = [];
+    bool loaded = false; // captured by builder; must NOT reset on rebuild
 
     showDialog<void>(
       context: context,
@@ -793,10 +794,10 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
             if (ctx.mounted) setDlg(() {});
           }
 
-          // Kick off load once (guarded by a flag captured in a list).
-          final loaded = <bool>[false];
-          if (!loaded[0]) {
-            loaded[0] = true;
+          // Load stored values once. `loaded` lives outside the builder so it
+          // survives setDlg rebuilds (otherwise load loops forever).
+          if (!loaded) {
+            loaded = true;
             load();
           }
 
