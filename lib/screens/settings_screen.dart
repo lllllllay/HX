@@ -322,8 +322,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${router.ipAddress} • $boardName',
-                  style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -704,7 +705,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              AppLocalizations.of(context)?.customizeDashboardSubtitle ?? 'Rearrange layout, toggle card visibility, quick action shortcuts & interface throughput monitoring',
+              AppLocalizations.of(context)?.customizeDashboardSubtitle ??
+                  'Rearrange layout, toggle card visibility, quick action shortcuts & interface throughput monitoring',
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.onSurfaceVariant,
@@ -761,7 +763,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              l10n?.settingsExportConfigSubtitle ?? 'Export DDNS, DHCP leases, firewall rules, packages, cron jobs & more as JSON',
+              l10n?.settingsExportConfigSubtitle ??
+                  'Export DDNS, DHCP leases, firewall rules, packages, cron jobs & more as JSON',
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.onSurfaceVariant,
@@ -827,7 +830,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          l10n?.redetectCapabilitiesSubtitle ?? 'Probe active router ubus objects & package manager capabilities',
+                          l10n?.redetectCapabilitiesSubtitle ??
+                              'Probe active router ubus objects & package manager capabilities',
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -847,7 +851,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               context.showToastSuccess(
                                 l10n?.capDetectedSuccess ??
                                     'Capabilities Detected',
-                                subtitle: l10n?.capDetectedSuccessSubtitle ?? 'Router capabilities re-detected & cached successfully!',
+                                subtitle:
+                                    l10n?.capDetectedSuccessSubtitle ??
+                                    'Router capabilities re-detected & cached successfully!',
                               );
                             }
                           },
@@ -1083,8 +1089,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ? null
                   : () async {
                       final mac = macCtrl.text.trim();
-                      if (!RegExp(r'^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$')
-                          .hasMatch(mac)) {
+                      if (!RegExp(
+                        r'^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$',
+                      ).hasMatch(mac)) {
                         if (ctx.mounted) {
                           context.showToastError('Invalid MAC address');
                         }
@@ -1764,7 +1771,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               Tooltip(
-                message: 'Bypasses live router connection and populates mock metrics for testing and review.',
+                message:
+                    'Bypasses live router connection and populates mock metrics for testing and review.',
                 child: Icon(
                   Icons.help_outline_rounded,
                   size: 18,
@@ -1775,7 +1783,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            l10n?.settingsReviewerModeDesc ?? 'Mock data is being used for demonstration. No live router is currently connected.',
+            l10n?.settingsReviewerModeDesc ??
+                'Mock data is being used for demonstration. No live router is currently connected.',
             style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
