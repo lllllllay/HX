@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yet_another_luci_app/main.dart';
 import 'package:yet_another_luci_app/screens/login_screen.dart';
@@ -578,53 +580,66 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
               l10n?.secManagementModules ?? 'Management Modules',
             ),
             _MoreScreenSection(
-              tiles: LuciModuleRegistry.instance.enabledModules
-                  .where((m) => !m.showInBottomNav && m.id != 'advanced_reboot')
-                  .map((module) {
-                    final isRpcMissing = ref
-                        .watch(appStateProvider)
-                        .isMissingRpcPackages;
-                    const rpcDependentModules = {
-                      'package_manager',
-                      'system_backup_upgrade',
-                      'diagnostics',
-                      'sqm',
-                    };
-                    final isRestricted =
-                        isRpcMissing && rpcDependentModules.contains(module.id);
+              tiles: [
+                _buildMoreTile(
+                  context,
+                  icon: Icons.power_settings_new_rounded,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  title: 'Wake on LAN',
+                  subtitle: 'Send a magic packet to wake a device',
+                  onTap: () => _showWakeOnLanDialog(context),
+                ),
+                ...LuciModuleRegistry.instance.enabledModules
+                    .where(
+                      (m) => !m.showInBottomNav && m.id != 'advanced_reboot',
+                    )
+                    .map((module) {
+                      final isRpcMissing = ref
+                          .watch(appStateProvider)
+                          .isMissingRpcPackages;
+                      const rpcDependentModules = {
+                        'package_manager',
+                        'system_backup_upgrade',
+                        'diagnostics',
+                        'sqm',
+                      };
+                      final isRestricted =
+                          isRpcMissing &&
+                          rpcDependentModules.contains(module.id);
 
-                    final (modName, modDesc) = _getLocalizedModuleInfo(
-                      module.id,
-                      l10n,
-                      module.name,
-                      module.description,
-                    );
-                    return _buildMoreTile(
-                      context,
-                      icon: isRestricted
-                          ? Icons.lock_outline_rounded
-                          : module.icon,
-                      iconColor: isRestricted
-                          ? Colors.amber.shade800
-                          : Theme.of(context).colorScheme.primary,
-                      title: modName,
-                      subtitle: isRestricted
-                          ? '$modDesc (RPC permissions required)'
-                          : modDesc,
-                      isRestricted: isRestricted,
-                      restrictionBadgeText: isRestricted
-                          ? 'Permissions Required'
-                          : null,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => module.buildScreen(context),
-                          ),
-                        );
-                      },
-                    );
-                  })
-                  .toList(),
+                      final (modName, modDesc) = _getLocalizedModuleInfo(
+                        module.id,
+                        l10n,
+                        module.name,
+                        module.description,
+                      );
+                      return _buildMoreTile(
+                        context,
+                        icon: isRestricted
+                            ? Icons.lock_outline_rounded
+                            : module.icon,
+                        iconColor: isRestricted
+                            ? Colors.amber.shade800
+                            : Theme.of(context).colorScheme.primary,
+                        title: modName,
+                        subtitle: isRestricted
+                            ? '$modDesc (RPC permissions required)'
+                            : modDesc,
+                        isRestricted: isRestricted,
+                        restrictionBadgeText: isRestricted
+                            ? 'Permissions Required'
+                            : null,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => module.buildScreen(context),
+                            ),
+                          );
+                        },
+                      );
+                    })
+                    .toList(),
+              ],
             ),
             LuciSectionHeader(l10n?.secApplication ?? 'Application'),
             _MoreScreenSection(
@@ -740,6 +755,191 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
       default:
         return (defaultName, defaultDesc);
     }
+  }
+
+  void _showWakeOnLanDialog(BuildContext context) {
+    // Persistent WoL targets + last-used values.
+    const kHistory = 'wol_mac_history';
+    const kLastIface = 'wol_last_iface';
+    const kLastBroadcast = 'wol_last_broadcast';
+    const kLastMac = 'wol_last_mac';
+
+    final macCtrl = TextEditingController();
+    final ifaceCtrl = TextEditingController();
+    bool broadcast = true;
+    bool busy = false;
+    List<String> history = [];
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlg) {
+          // Load stored values on first build, then fill the fields.
+          Future<void> load() async {
+            final prefs = await SharedPreferences.getInstance();
+            try {
+              history = (jsonDecode(prefs.getString(kHistory) ?? '[]') as List)
+                  .map((e) => e.toString())
+                  .toList();
+            } catch (_) {
+              history = [];
+            }
+            final lastMac = prefs.getString(kLastMac) ?? '';
+            final lastIface = prefs.getString(kLastIface) ?? 'br-lan';
+            final lastBroadcast = prefs.getBool(kLastBroadcast) ?? true;
+            macCtrl.text = lastMac;
+            ifaceCtrl.text = lastIface;
+            broadcast = lastBroadcast;
+            if (ctx.mounted) setDlg(() {});
+          }
+
+          // Kick off load once (guarded by a flag captured in a list).
+          final loaded = <bool>[false];
+          if (!loaded[0]) {
+            loaded[0] = true;
+            load();
+          }
+
+          Future<void> saveAfterWake(String mac) async {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(kLastMac, mac);
+            await prefs.setString(kLastIface, ifaceCtrl.text.trim());
+            await prefs.setBool(kLastBroadcast, broadcast);
+            history.remove(mac);
+            history.insert(0, mac);
+            if (history.length > 10) history = history.sublist(0, 10);
+            await prefs.setString(kHistory, jsonEncode(history));
+          }
+
+          return AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.power_settings_new_rounded),
+                SizedBox(width: 10),
+                Text('Wake on LAN'),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: macCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'MAC address',
+                      hintText: 'AA:BB:CC:DD:EE:FF',
+                    ),
+                  ),
+                  if (history.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Saved devices:',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: history.map((h) {
+                        return InputChip(
+                          label: Text(h),
+                          onPressed: () => setDlg(() => macCtrl.text = h),
+                          onDeleted: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            setDlg(() => history.remove(h));
+                            await prefs.setString(
+                              kHistory,
+                              jsonEncode(history),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: ifaceCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Interface',
+                      hintText: 'br-lan',
+                    ),
+                  ),
+                  CheckboxListTile(
+                    value: broadcast,
+                    onChanged: (v) => setDlg(() => broadcast = v ?? true),
+                    title: const Text('Use broadcast'),
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: busy ? null : () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: busy
+                    ? null
+                    : () async {
+                        final mac = macCtrl.text.trim();
+                        if (!RegExp(
+                          r'^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$',
+                        ).hasMatch(mac)) {
+                          if (ctx.mounted) {
+                            context.showToastError('Invalid MAC address');
+                          }
+                          return;
+                        }
+                        setDlg(() => busy = true);
+                        final appState = ref.read(appStateProvider);
+                        final ip = appState.selectedRouter?.ipAddress;
+                        final useHttps =
+                            appState.selectedRouter?.useHttps ?? false;
+                        final ok = ip == null
+                            ? false
+                            : await appState.apiService?.wakeOnLan(
+                                    ip,
+                                    appState.sysauth ?? '',
+                                    useHttps,
+                                    mac,
+                                    interface: ifaceCtrl.text.trim().isEmpty
+                                        ? 'br-lan'
+                                        : ifaceCtrl.text.trim(),
+                                    broadcast: broadcast,
+                                    context: ctx,
+                                  ) ??
+                                  false;
+                        await saveAfterWake(mac);
+                        if (ctx.mounted) Navigator.of(ctx).pop();
+                        if (context.mounted) {
+                          if (ok) {
+                            context.showToastSuccess(
+                              'Magic packet sent',
+                              subtitle: mac,
+                            );
+                          } else {
+                            context.showToastError(
+                              'Failed to send magic packet',
+                              subtitle: 'Check RPC permissions / etherwake',
+                            );
+                          }
+                        }
+                      },
+                child: busy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Wake'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildMoreTile(
