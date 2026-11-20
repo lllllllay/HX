@@ -1,0 +1,61 @@
+Manage OpenWrt routers directly from Android with a modern, high-performance interface built for administration, wireless monitoring, and network control.
+
+Yet Another LuCI App (YALA) is a privacy-first mobile client connecting directly to your router via LuCI HTTP/HTTPS, ubus JSON-RPC, and SSH. Designed for phones, tablets, and foldables, it runs completely cloud-free without telemetry.
+
+COMPATIBLE FIRMWARES & ROUTERS
+Works with OpenWrt (19.07–25.x+), ImmortalWrt, Turris OS, GL.iNet, Gargoyle, and FriendlyWrt across TP-Link, Netgear, Linksys, Asus, and x86/ARM devices with LuCI or ubus RPC.
+
+KEY FEATURES
+
+MULTI-ROUTER MANAGEMENT & SECURE VAULT
+• Manage multiple OpenWrt routers with isolated profiles
+• Hardware-backed encrypted local vault (Android Keystore)
+• Supports LuCI RPC, ubus JSON-RPC, and sysauth logins
+
+CONNECTED CLIENTS & BANDWIDTH LIMITS
+• Live wired, wireless, and DHCP lease clients + Dumb AP support
+• Per-client real-time transfer rates (RX / TX) & speed throttling limits
+• Filter by hostname, IP, MAC, or band; static DHCP lease management
+
+ADGUARD HOME & SQM / QOS
+• Manage AdGuard Home DNS sinkholes, filter lists, query stats & topology
+• Bufferbloat mitigation with SQM (Cake / FQ-CoDel) & live queue telemetry
+
+SSH TERMINAL, LOGS & SYSTEM TOOLS
+• Interactive persistent SSH terminal with shortcuts, history & saved commands
+• System log (logread) & kernel buffer (dmesg) viewer with filtering & copy
+• Advanced Reboot: dual-firmware partition switching & ACPI power-off
+• Read-only Account & Access inspector for RPC permissions & SSH checks
+• Live SoC hardware temperature, CPU/RAM/Swap gauges & throughput graphs
+
+FIRMWARE UPGRADE CENTER & BACKUPS
+• Check official OpenWrt updates, review preservation & flash sysupgrade safely
+• Export privacy-redacted JSON router configs, backup/restore & MTD dump
+• Live flash/overlay & USB storage tracking with low-space alerts
+
+NETWORK DIAGNOSTICS & SPEED TEST
+• Router-side WAN speed test engine with multi-stage sampling
+• Ping, visual Traceroute, DNS lookup, ARP, conntrack & routing inspection
+
+PARENTAL CONTROLS & GUEST WI-FI
+• Overhauled profiles with avatars, schedules, domain filtering & bypass modes
+• 1-tap isolated Guest Wi-Fi provisioning with L2 isolation & QR sharing
+• Tri-band 2.4/5/6 GHz radios, stations & 802.11r/k/v fast roaming
+
+PACKAGE MANAGER, FIREWALL & VPN
+• Dual OPKG & APK package manager, feed management, services & cron editor
+• Firewall zones, port forwarding & custom rules (fw3 iptables & fw4 nftables)
+• Monitor WireGuard, OpenVPN, Tailscale, Cloudflare Tunnels, and NextDNS
+
+LOCALIZATION (12 LOCALES)
+• Available in English, German, Spanish, French, Indonesian, Italian, Japanese, Portuguese (PT & BR), Russian, Ukrainian, and Simplified Chinese
+
+SECURITY & PRIVACY
+• Interface-aware self-device guard & atomic UCI rollback
+• 100% Free, Ad-Free, and cloud-free with zero telemetry
+
+ORIGIN & LICENSING
+Open-source (GPLv3) standalone app originally based on cogwheel0's luci-mobile.
+
+DISCLAIMER
+Independent project not affiliated with the OpenWrt Project, AdGuard, WireGuard, Tailscale, Cloudflare, or NextDNS. Trademarks belong to their respective owners.

@@ -1,0 +1,242 @@
+// Copyright (C) 2026 @nightcodex7
+// Copyright (C) 2025-2026 cogwheel0
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import 'package:flutter/material.dart';
+import 'package:yet_another_luci_app/services/interfaces/api_service_interface.dart';
+import 'package:yet_another_luci_app/services/api_service.dart';
+import 'package:yet_another_luci_app/services/secure_storage_service.dart';
+import 'package:yet_another_luci_app/services/interfaces/auth_service_interface.dart';
+import 'package:yet_another_luci_app/utils/logger.dart';
+
+class RealAuthService implements IAuthService {
+  final SecureStorageService _secureStorageService = SecureStorageService();
+  final IApiService _apiService;
+
+  String? _sysauth;
+  String? _ipAddress;
+  bool _useHttps = false;
+
+  int _authEpoch = 0;
+  bool _isPasswordTransitionActive = false;
+
+  @override
+  int get authEpoch => _authEpoch;
+
+  @override
+  int startPasswordTransition() {
+    _authEpoch++;
+    _isPasswordTransitionActive = true;
+    Logger.info(
+      'Auth epoch advanced to $_authEpoch: Password transition started',
+    );
+    return _authEpoch;
+  }
+
+  @override
+  void completePasswordTransition({
+    required String newToken,
+    required String newPassword,
+    required String ipAddress,
+    required bool useHttps,
+  }) {
+    _authEpoch++;
+    _isPasswordTransitionActive = false;
+    _sysauth = newToken;
+    _ipAddress = ipAddress;
+    _useHttps = useHttps;
+    Logger.info(
+      'Auth epoch advanced to $_authEpoch: Password transition completed',
+    );
+  }
+
+  @override
+  void cancelPasswordTransition() {
+    _authEpoch++;
+    _isPasswordTransitionActive = false;
+    Logger.info(
+      'Auth epoch advanced to $_authEpoch: Password transition cancelled',
+    );
+  }
+
+  @override
+  void updateSessionToken(String? token) {
+    _sysauth = token;
+  }
+
+  RealAuthService(this._apiService) {
+    if (_apiService is RealApiService) {
+      _apiService.onSessionRenew = _renewSession;
+    }
+  }
+
+  Future<String?> _renewSession(String ipAddress, bool useHttps) async {
+    if (_isPasswordTransitionActive) {
+      Logger.info(
+        'Session renewal rejected: password transition active in epoch $_authEpoch',
+      );
+      return null;
+    }
+    final capturedEpoch = _authEpoch;
+
+    final credentials = await _secureStorageService.getCredentials();
+    final user = credentials['username'];
+    final pass = credentials['password'];
+    final storedIp = credentials['ipAddress'];
+    final targetIp = ipAddress.isNotEmpty
+        ? ipAddress
+        : (storedIp ?? _ipAddress ?? '');
+    if (user == null || pass == null || targetIp.isEmpty) {
+      return null;
+    }
+
+    try {
+      final result = await _apiService.authenticate(
+        targetIp,
+        user,
+        pass,
+        useHttps,
+      );
+      if (capturedEpoch != _authEpoch || _isPasswordTransitionActive) {
+        Logger.info(
+          'Discarding stale session renewal result from expired auth epoch $capturedEpoch (current: $_authEpoch)',
+        );
+        return null;
+      }
+      if (result.isSuccess && result.token != null) {
+        _sysauth = result.token;
+        _ipAddress = targetIp;
+        _useHttps = result.actualUseHttps;
+        return result.token;
+      }
+    } catch (e) {
+      Logger.warning('Failed to transparently renew session: $e');
+    }
+    return null;
+  }
+
+  @override
+  String? get sysauth => _sysauth;
+  @override
+  String? get ipAddress => _ipAddress;
+  @override
+  bool get useHttps => _useHttps;
+  @override
+  bool get isAuthenticated => _sysauth != null;
+
+  @override
+  Future<void> login(
+    String ipAddress,
+    String username,
+    String password,
+    bool useHttps, {
+    BuildContext? context,
+  }) async {
+    final result = await _apiService.authenticate(
+      ipAddress,
+      username,
+      password,
+      useHttps,
+      context: context,
+    );
+
+    if (result.isSuccess && result.token != null) {
+      _sysauth = result.token;
+      _ipAddress = ipAddress;
+      _useHttps = result.actualUseHttps;
+
+      await _secureStorageService.saveCredentials(
+        ipAddress: ipAddress,
+        username: username,
+        password: password,
+        useHttps: result.actualUseHttps,
+      );
+
+      if (result.actualUseHttps != useHttps) {
+        Logger.info(
+          'Protocol changed from ${useHttps ? "HTTPS" : "HTTP"} to ${result.actualUseHttps ? "HTTPS" : "HTTP"} due to redirect',
+        );
+      }
+    } else {
+      _sysauth = null;
+    }
+  }
+
+  @override
+  Future<bool> tryAutoLogin(
+    String? ipAddress,
+    String? username,
+    String? password,
+    bool? useHttps, {
+    bool force = false,
+    BuildContext? context,
+  }) async {
+    if (!force && isAuthenticated) {
+      return true;
+    }
+
+    if (force) {
+      _sysauth = null;
+    }
+
+    if (ipAddress != null &&
+        username != null &&
+        password != null &&
+        useHttps != null) {
+      await login(ipAddress, username, password, useHttps, context: context);
+      return isAuthenticated;
+    }
+
+    final credentials = await _secureStorageService.getCredentials();
+    final ip = credentials['ipAddress'];
+    final user = credentials['username'];
+    final pass = credentials['password'];
+    final storedHttps = credentials['useHttps'] == 'true';
+
+    if (ip != null && user != null && pass != null) {
+      await login(
+        ip,
+        user,
+        pass,
+        storedHttps,
+        context: context?.mounted == true ? context : null,
+      );
+      return isAuthenticated;
+    }
+
+    return false;
+  }
+
+  @override
+  Future<void> logout() async {
+    _sysauth = null;
+    _ipAddress = null;
+    _useHttps = false;
+    // Session token cleared. Saved router profile credentials in SecureStorageService are preserved
+    // so auto-login on app restart or router profile selection functions reliably.
+  }
+
+  @override
+  Future<bool> checkRouterAvailability(
+    String ipAddress,
+    bool useHttps, {
+    BuildContext? context,
+  }) async {
+    if (ipAddress.isEmpty) return false;
+
+    try {
+      final result = await _apiService.call(
+        ipAddress,
+        '',
+        useHttps,
+        object: 'system',
+        method: 'board',
+        params: {},
+        context: context,
+      );
+      return result != null;
+    } catch (e) {
+      return false;
+    }
+  }
+}

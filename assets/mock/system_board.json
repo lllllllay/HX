@@ -1,0 +1,14 @@
+{
+  "hostname": "Office-Router",
+  "model": "GL-AX6000",
+  "release": {
+    "distribution": "OpenWrt",
+    "version": "25.10.0",
+    "revision": "r27666-40bb882939",
+    "target": "mt7986/generic",
+    "description": "OpenWrt 25.10.0 r27666-40bb882939"
+  },
+  "kernel": "6.1.86",
+  "board_name": "gl-ax6000",
+  "system": "Amlogic A311D2 (armv8l)"
+}
