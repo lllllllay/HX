@@ -1000,7 +1000,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildWakeOnLanTile(BuildContext context, AppState appState) {
     final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: LuciCardStyles.standardCard(context),
       child: Material(
@@ -1020,7 +1019,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           title: Text(
-            l10n?.tileWakeOnLan ?? 'Wake on LAN',
+            'Wake on LAN',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
           subtitle: const Text(
